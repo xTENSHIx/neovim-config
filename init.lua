@@ -31,6 +31,21 @@ vim.pack.add ({
 	{src = 'https://github.com/mfussenegger/nvim-jdtls'},
   {src = 'https://github.com/nvim-treesitter/nvim-treesitter'},
   {src = 'https://github.com/neovim/nvim-lspconfig'},
+  {src = 'https://github.com/nvim-orgmode/orgmode'},
+  {src = 'https://github.com/chipsenkbeil/org-roam.nvim'}
+})
+
+require "orgmode".setup({
+  org_agenda_files = "~/org/**/+",
+  org_default_notes_file = "~/org/refile.org",
+})
+
+require "org-roam".setup({
+  directory = "~/org/roam/",
+  org_files = {
+    "~/org/**/*",
+    "~/org/refile.org",
+  },
 })
 
 require "mini.pairs".setup()
