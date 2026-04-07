@@ -10,109 +10,70 @@ vim.g.mapleader = " "
 vim.o.clipboard = "unnamedplus"
 vim.o.termguicolors = true
 
+
+vim.o.cursorlineopt = "number"
+vim.o.cursorline = true
+vim.api.nvim_set_hl(0, "CursorLineNr", { fg = "#EBCB8B", bold = true })
+
+vim.keymap.set('n', '<ESC>', ':nohlsearch<CR>', { noremap = true, silent = true })
+
 vim.keymap.set('n', '<leader>qq', ':q<CR>')
-vim.keymap.set('n', '<leader>hrr', ':update<CR> :so<CR>')
+vim.keymap.set('n', '<leader>hr', ':update<CR> :so<CR>')
 vim.keymap.set('n', '<leader>fs', ':write<CR>')
-vim.keymap.set('n', '<leader>ff', ':Pick files<CR>')
-vim.keymap.set('n', '<leader>fh', ':Pick help<CR>')
-vim.keymap.set('n', '<leader>bb', ':Pick buffers<CR>')
 vim.keymap.set('n', '<leader>fp', 
   function() 
     vim.cmd.edit(vim.fn.stdpath("config") .. "/init.lua") 
   end
 )
 
+vim.pack.add({
+  { src = 'https://github.com/mason-org/mason.nvim' },
+  { src = 'https://github.com/nvim-orgmode/orgmode' },
+  { src = 'https://github.com/chipsenkbeil/org-roam.nvim' },
+  { src = 'https://github.com/stevearc/oil.nvim' },
+  { src = 'https://github.com/nvim-mini/mini.pairs' },
+  { src = 'https://github.com/mfussenegger/nvim-jdtls' },
+  { src = 'https://github.com/vague-theme/vague.nvim' },
+  { src = 'https://github.com/ibhagwan/fzf-lua' },
+})
+
+require 'mini.pairs'.setup()
+require 'oil'.setup()
+require 'mason'.setup()
+
+local fzf = require 'fzf-lua'
+
+vim.keymap.set('n', '<leader>ff', fzf.files)
+vim.keymap.set('n', '<leader>fh', fzf.helptags)
+vim.keymap.set('n', '<leader>ca', fzf.lsp_code_actions)
+
+vim.lsp.config('*', {
+  root_markers = { '.git' },
+})
+
+vim.lsp.config('clangd', {
+  cmd = { 'clangd' },
+  filetypes = { 'c', 'cpp' },
+})
+
+vim.lsp.enable({ "clangd", "jdtls", })
+
 vim.keymap.set('n', 'gl', vim.diagnostic.open_float)
 
-vim.pack.add ({
-	{src = 'https://github.com/nvim-mini/mini.pick'},
-	{src = 'https://github.com/nvim-mini/mini.pairs'},
-	{src = 'https://github.com/vague-theme/vague.nvim'},
-	{src = 'https://github.com/mfussenegger/nvim-jdtls'},
-  {src = 'https://github.com/nvim-treesitter/nvim-treesitter'},
-  {src = 'https://github.com/neovim/nvim-lspconfig'},
-  {src = 'https://github.com/nvim-orgmode/orgmode'},
-  {src = 'https://github.com/chipsenkbeil/org-roam.nvim'}
-})
-
-require "orgmode".setup({
-  org_agenda_files = "~/org/**/+",
-  org_default_notes_file = "~/org/refile.org",
-})
-
-require "org-roam".setup({
-  directory = "~/org/roam/",
-  org_files = {
-    "~/org/**/*",
-    "~/org/refile.org",
+require('orgmode').setup({
+  org_agenda_files = {'~/org/*', '~/my-orgs/**/*'},
+  org_default_notes_file = '~/org/refile.org',
+  mappings = {
+    global = {
+      org_agenda = '<leader>oa',
+      org_capture = '<leader>oc'
+    }
   },
+  org_capture_templates = {
+    T = {
+      description = 'Test',
+      template = '',
+      target = '~/org/todo.org'
+    },
+  }
 })
-
-require "mini.pairs".setup()
-require "mini.pick".setup({
-	window = {
-		config = function()
-			local width = math.floor(vim.o.columns * 0.5)
-			local height = 12
-			local row = 3
-			local col = math.floor((vim.o.columns - width) / 2)
-
-			return {
-	 			anchor = 'NW',
-				border = 'rounded',
-				width = width,
-				height = height,
-				row = row,
-				col = col,
-			}
-		end,
-}}) 
-
-require 'colorpicker'
-
-
--- Colorscheme picker
--- local function list_colorschemes() 
---   return vim.fn.getcompletion('', 'color')
--- end
---
--- local function pick_colorschemes()
---   MiniPick.start({
---     source = {
---       items = list_colorschemes(),
---       name = "Colorschemes",
---     },
---     choose = function(item)
---       vim.cmd('colorscheme ' .. item)
---     end,
---   })
--- end
-
-
-vim.keymap.set('n', '<leader>ht', ':Pick colorschemes<CR>')
-
-
-vim.lsp.enable({ "jdtls", "clangd",})
-
-
-require "nvim-treesitter.configs".setup({
-  ensure_installed = { 'java', 'xml', 'toml', 'cpp', 'c'},
-
-  highlight = { enable = true },
-
-  indent = { enable = true },
-}) 
-
-vim.api.nvim_create_autocmd('LspAttach', {
-	callback = function(args)
-		local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
-		if client:supports_method("textDocument/completion") then
-			vim.lsp.completion.enable(true, client.id, args.buf, { autotrigger=true })
-		end
-	end,
-})
-
-vim.cmd[[set completeopt+=noselect]]
-
-vim.cmd("colorscheme vague")
-vim.cmd(":hi statusline guibg=NONE")
