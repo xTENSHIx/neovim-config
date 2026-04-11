@@ -35,9 +35,13 @@ vim.pack.add({
   { src = 'https://github.com/mfussenegger/nvim-jdtls' },
   { src = 'https://github.com/vague-theme/vague.nvim' },
   { src = 'https://github.com/ibhagwan/fzf-lua' },
+  { src = 'https://github.com/folke/snacks.nvim' },
+  { src = 'https://github.com/nvim-mini/mini.icons' },
+  { src = 'https://github.com/nvim-treesitter/nvim-treesitter' },
 })
 
 require 'mini.pairs'.setup()
+require 'mini.icons'.setup()
 require 'oil'.setup()
 require 'mason'.setup()
 
@@ -46,6 +50,14 @@ local fzf = require 'fzf-lua'
 vim.keymap.set('n', '<leader>ff', fzf.files)
 vim.keymap.set('n', '<leader>fh', fzf.helptags)
 vim.keymap.set('n', '<leader>ca', fzf.lsp_code_actions)
+
+require 'snacks'.setup({
+  image = {
+    enable = true,
+
+
+  }
+})
 
 vim.lsp.config('*', {
   root_markers = { '.git' },
